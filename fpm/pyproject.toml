@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fpm"
+version = "1.1.0"
+description = "Foothold prediction model and G1 locomotion environments (Watch Your Step) for Isaac Lab 3"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Matthias Heyrman" }, { name = "Chenhao Li" }, { name = "Ioannis Dadiotis" }, { name = "Marco Hutter" }]
+# Isaac Lab 3 (isaaclab, isaaclab_tasks, isaaclab_rl with rsl-rl) comes from the Isaac Lab environment
+dependencies = []
+
+[project.entry-points."isaaclab.tasks"]
+fpm = "fpm.tasks"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+fpm = ["assets/data/G1/*.usd", "assets/data/G1/configuration/*.usd"]

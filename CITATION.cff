@@ -1,0 +1,45 @@
+cff-version: 1.2.0
+message: >-
+  If you use this code, please cite the paper below. If you use the foothold
+  prediction model or the G1 environments in fpm/, please also cite Watch Your Step.
+type: software
+title: "Terrain-Grounded Imagination"
+abstract: >-
+  A recipe for training humanoid locomotion on sparse and rough terrain through
+  a world model with differentiable heightmap lookups.
+authors:
+  - family-names: Heyrman
+    given-names: Matthias
+    affiliation: "Robotic Systems Lab, ETH Zurich"
+  - family-names: Hutter
+    given-names: Marco
+    affiliation: "Robotic Systems Lab, ETH Zurich"
+repository-code: "https://github.com/leggedrobotics/terrain-grounded-imagination"
+license: MIT
+preferred-citation:
+  type: unpublished
+  title: "Terrain-Grounded Imagination: A Recipe for Humanoid Locomotion on Sparse Terrain through World Models"
+  authors:
+    - family-names: Heyrman
+      given-names: Matthias
+    - family-names: Hutter
+      given-names: Marco
+  year: 2026
+  notes: "Code: https://github.com/leggedrobotics/terrain-grounded-imagination"
+  url: "https://github.com/leggedrobotics/terrain-grounded-imagination"
+references:
+  - type: article
+    title: "Watch Your Step: Anticipated Perception for Humanoid Locomotion"
+    authors:
+      - family-names: Heyrman
+        given-names: Matthias
+      - family-names: Li
+        given-names: Chenhao
+      - family-names: Dadiotis
+        given-names: Ioannis
+      - family-names: Hutter
+        given-names: Marco
+    year: 2026
+    journal: "arXiv preprint arXiv:2610.29612"
+    doi: "10.48550/arXiv.2610.29612"
+    url: "https://arxiv.org/abs/2610.29612"

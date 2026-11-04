@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "terrain-grounded-imagination"
+version = "1.1.0"
+description = "A recipe for training humanoid locomotion on sparse and rough terrain through a world model with differentiable heightmap lookups."
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Matthias Heyrman" }, { name = "Marco Hutter" }]
+# Isaac Lab 3 (torch, warp, newton, trimesh) comes from the Isaac Lab environment; install ../fpm first (README)
+dependencies = ["mujoco>=3.3", "onnx", "onnxruntime", "mediapy", "matplotlib"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+tgi = ["assets/*.xml", "assets/*.usd", "assets/unitree_g1/*.xml", "assets/unitree_g1/meshes/*.STL", "deploy/*.json"]
