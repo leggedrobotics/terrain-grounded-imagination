@@ -31,6 +31,11 @@ Terrain-grounded imagination (TGI) trains a Unitree G1 humanoid to walk over sta
   </tr>
 </table>
 
+<p align="center">
+  <img src="media/hardware.gif" width="480" alt="G1 climbing wooden stairs and stepping down onto a pallet in a lab hall"><br>
+  Testing on hardware
+</p>
+
 ## Results
 
 The released recipe (the defaults of `scripts/train.py`, 8192 environments) after 40k iterations, on the `fpm` validation suites (Isaac Lab 3, PhysX; see [Evaluation](#evaluation)). Mean ± standard deviation over five seeds, in %:
