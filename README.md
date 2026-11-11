@@ -196,6 +196,10 @@ tgi/
     export.py, sim2sim.py, stand_check.py, check.sh, isaac_eval.sh, convert_g1_usd.py
 ```
 
+## Relation to SuperMimic
+
+TGI is inspired by [SuperMimic](https://arxiv.org/abs/2610.28480), which trains a humanoid motion-tracking policy by backpropagating through short imagined rollouts of a learned world model. This repository applies that training style to the perceptive locomotion of [Watch Your Step](https://leggedrobotics.github.io/watch-your-step/): the FPM and its foothold-gated policy are trained through the world model instead of with PPO, and the terrain is added to imagination through heightmap lookups.
+
 ## Citation
 
 If you use this code, please cite:
