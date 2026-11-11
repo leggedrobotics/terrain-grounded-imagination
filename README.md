@@ -134,6 +134,8 @@ The validation suites behind the [results](#results) are in `fpm/scripts` (see [
 - **Locomotion with 20 cm stepping stones**: the same, plus `env.scene.terrain.terrain_generator.sub_terrains.train_stepping_stones.stone_width_range=[0.2,0.2] env.scene.terrain.terrain_generator.sub_terrains.train_stepping_stones.stone_distance_range=[0.2,0.2]`.
 - **Corridor** (13 sections in each of three corridors: straight, stones, blocks): `python scripts/validate_corridor.py --checkpoint <model.pt> --rounds 4`.
 
+To check the policy gradient, run `python scripts/grad_check.py --ckpt logs/<run_name>/ckpt_020000.pt --out logs/<run_name>/grad_check` (about 25 min on an RTX 2080 Ti). It compares the backpropagated gradient of the imagined objective with central finite differences over all 29 dimensions of the first action, for the plain H-step return and for the cut return, by terrain and horizon.
+
 ## Options
 
 Every option is a flag of `scripts/train.py`; the defaults are the recipe. The observations below come from our runs. Unless a row says otherwise, they are single seeds, and the smaller tests used 4096 environments on RTX 2080 Ti GPUs, so treat them as indications, not settled results.
@@ -144,6 +146,7 @@ Every option is a flag of `scripts/train.py`; the defaults are the recipe. The o
 |---|---|---|
 | `--scan foothold` / `full` | Policy perception: foothold patches (default), or the whole 1.6 x 1.0 m torso height scan (33 x 21 nodes, the base env's `height_scan`) with no FPM | one seed: behind the foothold patches at every checkpoint up to 50k; at 40k, locomotion success 75.0 vs 81.8 %, 20 cm stones 16.1 vs 29.0 %, corridor crossed 83.3 vs 92.3 % (foothold patches: five-seed mean) |
 | `--fpm 0` | Fixed footholds under the base for the whole run (no learned FPM) | |
+| `--wm_tau full` / `pelvis` / `none` | Terrain input of the world model: all features, only the pelvis height above the terrain, or none (rewards, terminations and contacts still read the terrain) | |
 | `--pg_event 0.3`, `--pg_lambda 0` | Cut the gradient through the model at imagined touchdowns with an unsupported sole share above `pg_event`, and bootstrap from the critic there (`--pg_event 0`: plain H-step return) | part of the recipe |
 | `--horizon 32` | Imagination horizon (steps of 20 ms) | 64: policy gradient norms about 10x higher, 27 % slower, no gain |
 | `--lr_coef 0.1` | Weight of the likelihood-ratio (advantage) term next to backpropagation through the model | 0.5 together with `--w_foothold -6` was worse on the corridor and stepping stones |
@@ -175,6 +178,8 @@ Every option is a flag of `scripts/train.py`; the defaults are the recipe. The o
 
 **Resuming.** `--resume <ckpt>` continues a run; `--resume_wm_only N` trains only the world model and FPM for the first N iterations after it (for example after changing the terrain features). `--max_hours` counts the current job's time only.
 
+**PPO baseline.** `--algo ppo` trains the same policy with PPO on real rollouts, in the same environment, curriculum, perception, FPM co-training, critic features and reward (`--ppo_*`: rsl-rl settings of the base env). Our runs used `--algo ppo --async_collect 0 --fpm_bootstrap 150 --fpm_label_every 5 --fpm_steps 32 --ckpt_every 50 --log_every 10`; one PPO iteration (8192 environments x 24 steps) uses about 9.6x the simulator transitions of a TGI iteration. Checkpoints export and evaluate like TGI ones.
+
 ## Repository structure
 
 ```
@@ -191,13 +196,14 @@ tgi/
     foot_pred/          the FPM with a running normalizer, labels from the replay buffer, continual trainer
     mdp/                differentiable state, rewards, kinematics, heightmap lookups, the fpm observation interface
     env/                the fpm environment on Newton, domain randomization, success-guided curriculum, terrains
-    training/           options, trainer, simulator collection, optimizers, logging
+    training/           options, trainer, PPO baseline, simulator collection, optimizers, logging
     deploy/             NumPy/ONNX controller (policy + FPM + foothold scan) and the G1 PD gains
     assets/             G1 kinematics MJCF, Unitree's G1 MJCF for sim2sim
     policy_io.py        closed-loop execution in the simulator, checkpoint loading
   scripts/
     train.py            training entry point (options: python scripts/train.py --help)
     pipeline.sh         train from scratch, then final export, evaluation and videos
+    grad_check.py       backpropagated vs. finite-difference gradients of the imagined objective
     export.py, sim2sim.py, stand_check.py, check.sh, isaac_eval.sh, convert_g1_usd.py
 ```
 

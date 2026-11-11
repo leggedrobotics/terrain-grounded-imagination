@@ -60,6 +60,8 @@ def build_parser() -> argparse.ArgumentParser:
     g.add_argument("--lr", type=float, default=2e-4, help="learning rate of the world model and the critic")
     g.add_argument("--wm_opt", type=str, default="muon", choices=["adam", "muon"],
                    help="muon: Muon on the hidden weight matrices, Adam on the rest")
+    g.add_argument("--wm_tau", type=str, default="full", choices=["full", "pelvis", "none"],
+                   help="ablation: terrain input of the world model (none: zeroed, pelvis: pelvis height above terrain only)")
 
     g = p.add_argument_group("policy learning in imagination")
     g.add_argument("--horizon", type=int, default=32, help="imagined steps (20 ms each)")
@@ -131,6 +133,19 @@ def build_parser() -> argparse.ArgumentParser:
                    help="run the simulator in a thread, overlapping the updates (it acts with networks one iteration old)")
     g.add_argument("--async_after", type=int, default=1600, help="iteration from which the simulator overlaps the updates")
     g.add_argument("--vram_gb", type=float, default=22.0, help="GPU memory budget of the whole run (simulator + torch)")
+
+    g = p.add_argument_group("PPO baseline (--algo ppo)")
+    g.add_argument("--algo", type=str, default="tgi", choices=["tgi", "ppo"],
+                   help="ppo: PPO on real rollouts in the same environment, perception, FPM and reward")
+    g.add_argument("--ppo_steps", type=int, default=24, help="rollout steps per environment and iteration")
+    g.add_argument("--ppo_epochs", type=int, default=5)
+    g.add_argument("--ppo_minibatches", type=int, default=4)
+    g.add_argument("--ppo_lr", type=float, default=1e-3)
+    g.add_argument("--ppo_kl", type=float, default=0.01, help="desired KL (adaptive learning rate)")
+    g.add_argument("--ppo_entropy", type=float, default=0.005)
+    g.add_argument("--ppo_clip", type=float, default=0.2)
+    g.add_argument("--ppo_init_std", type=float, default=1.0)
+    g.add_argument("--ppo_sym", type=int, default=1, help="mirror data augmentation")
     return p
 
 
@@ -141,4 +156,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     cfg.log_dir = os.path.abspath(cfg.log_dir)
     if cfg.scan == "full":
         cfg.fpm = 0  # the policy sees the whole height grid: no foothold prediction
+    if cfg.algo == "ppo":
+        cfg.async_collect = 0  # PPO collects its own rollouts
     return cfg

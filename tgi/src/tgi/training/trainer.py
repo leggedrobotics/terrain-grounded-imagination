@@ -102,6 +102,12 @@ class Trainer:
             sim.extra_termination = lambda S: mdp.terrain.hole_margin(S[0], S[1]) < cfg.term_hole
 
         self.wm = WorldModel(mdp.terrain.wm_dim, tuple(cfg.wm_hidden)).to(dev)
+        if cfg.wm_tau != "full":  # ablation: mask the world model's terrain input (rewards and contacts keep the terrain)
+            mask = torch.zeros(mdp.terrain.wm_dim, device=dev)
+            mask[0] = float(cfg.wm_tau == "pelvis")
+            inputs = self.wm.inputs
+            self.wm.inputs = lambda S, tf, a, a_prev, xi_n: inputs(S, tf * mask, a, a_prev, xi_n)
+            print(f"world-model terrain input: {cfg.wm_tau}", flush=True)
         self.pi = make_policy(dev)  # base env observation layout, Isaac joint order
         self.critic = Critic(mdp.critic_dim).to(dev)
         self.fpm = FootholdPredictor().to(dev) if cfg.fpm else None

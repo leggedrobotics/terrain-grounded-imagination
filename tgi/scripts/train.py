@@ -8,7 +8,10 @@ from tgi.training.config import parse_args
 
 def main():
     cfg = parse_args()  # before torch and Isaac Lab are imported
-    from tgi.training.trainer import Trainer
+    if cfg.algo == "ppo":
+        from tgi.training.ppo import PPOTrainer as Trainer
+    else:
+        from tgi.training.trainer import Trainer
 
     Trainer(cfg).run()
 
